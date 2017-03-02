@@ -1,0 +1,1 @@
+/home/infatum/Projects/Ada_small_compiler/build-String-Desktop-Default/CMakeFiles/String.dir
