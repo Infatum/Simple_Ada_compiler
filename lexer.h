@@ -5,10 +5,6 @@
 #include <iostream>
 #include <cstdio>
 #include <fstream>
-#include <algorithm>
-#include <cstring>
-#include <cctype>
-#include <cstdlib>
 #include <cctype>
 using std::string;
 using std::cout;
@@ -32,14 +28,14 @@ private:
         int token;
     };
     char getc();
-    bool find_symbol(char);
-    bool has_token(std::string &);
+    int find_symbol_token(char);
+    int find_reserved_word_token(std::string &);
 
 public:
     enum TOKENS { NUM = 1, ID, IF, ELSE, ELSEIF, ENDIF, IN, OUT, PROCEDURE, LPAR, RPAR, PLUS, MINUS, LESS,
                   MORE, BEGIN, END, EQUAL, SEMICOLON, THEN, EOFILE };
     Lexer(const string &f) : filename(f) { }
-    virtual ~Lexer() { }
+    virtual ~Lexer();
 
 protected:
     std::ifstream source_file;
@@ -59,7 +55,7 @@ protected:
                               {"in", IN }, {"out", OUT }, {"PROCEDURE", PROCEDURE }, {"begin", BEGIN },
                               {"end", END }, {"then", THEN } };
     virtual void error(string message);
-    void next_token();
+    void next_token(const std::string &filename);
 };
 
 #endif // LEXER_H

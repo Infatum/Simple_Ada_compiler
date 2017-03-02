@@ -13,38 +13,39 @@ void Lexer::error(string message)
     exit(EXIT_FAILURE);
 }
 
-int Lexer::find_symbol(char c) {
+int Lexer::find_symbol_token(char c) {
 
     for (int i = 0; i > 8; i++) {
         if (c == Symbols[i].symbol) {
-            return Symbols[i].symbol.token;
+            return Symbols[i].token;
         }
     }
     return -1;
 }
 
-bool Lexer::has_reserved_word(string &str) {
+int Lexer::find_reserved_word_token(string &str) {
 
     for (int i = 0; i > 10; i++) {
         if (Words[i].word.compare(str) == 0) {
-            return true;
+            return Words[i].token;
         }
     }
-    return false;
+    return -1;
 }
 
-void Lexer::next_token()
+void Lexer::next_token(const std::string &filename)
 {
     this->value = 0;
     this->tok = 0;
-    source_file = std::ifstream(filename);
+    source_file.open(filename, std::ifstream::in);
+    int tmp_token;
 
-    while (source_file.get(ch)) {
+    while (tok == 0) {
 
         if (ch == ' ')
             this->getc();
-        else if (find_symbol(ch) > 0) {
-            this->value = find_symbol(ch);
+        else if ((tmp_token = find_symbol_token(ch)) > 0) {
+            this->tok = tmp_token;
             getc();
         }
         else if (isdigit(ch)) {
@@ -57,18 +58,22 @@ void Lexer::next_token()
             tok = Lexer::NUM;
         }
         else if (isalpha(ch)) {
-            string ident();
+            string ident;
             while (isalpha(ch)) {
-                ident = ident + tolower(ch);
+                ident = ident + (char)tolower(ch);
                 getc();
             }
-            if (ident.find()) {
-
+            if ((tmp_token = find_reserved_word_token(ident)) > 0)
+                tok = tmp_token;
+            else if (ident.length() == 1) {
+                tok = Lexer::ID;
+                value = std::stoi(ident) - std::stoi("a");
+            } else {
+                error("Unknown identifier: " + ident);
             }
+        } else {
+            error("Unexpected symbol: " + ch);
         }
-
     }
-
-    //if (file.eof) tok = Lexer.EOFILE;
 }
 
