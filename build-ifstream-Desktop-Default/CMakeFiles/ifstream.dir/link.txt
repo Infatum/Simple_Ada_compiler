@@ -1,1 +1,0 @@
-/usr/bin/g++       CMakeFiles/ifstream.dir/main.cpp.o  -o ifstream -rdynamic 
