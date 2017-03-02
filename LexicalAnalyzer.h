@@ -27,7 +27,7 @@ using namespace std;
 #define TOKEN_ALWD		10
 
 typedef struct _token {
-    string	token_name;
+    string	token_value;
     int		token_type;
     // unknown, reserved, digit, float, literal ...
 } TOKEN;

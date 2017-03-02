@@ -11,7 +11,7 @@ private:
     TValue *value;
     Node *left;
     Node *right;
-    std::vector<TKey, TValue> operators;
+    std::vector<TKey> operators;
 
 public:
     Node() { }
@@ -36,6 +36,25 @@ public:
         kind = k;
     }
 
+    TKey get_kind() const
+    {
+        return kind;
+    }
+
+    TValue get_value() const
+    {
+        return value;
+    }
+
+    void add_operator(const TKey &op)
+    {
+        operators.push_back(op);
+    }
+
+    std::vector<TKey> get_operators() const
+    {
+        return operators;
+    }
     virtual ~Node();
 };
 

@@ -8,7 +8,7 @@ const char *keyword[] = { "BEGIN", "MODULE", "CONSTANT", "PROCEDURE", "IS", "IF"
 const char *rla_ops[] = { "/=", "<=", ">=", "=", "<",  ">"};
 const char *add_ops[] = { "+", "-", "OR"};
 const char *mul_ops[] = { "*", "/" , "REM", "MOD", "AND" };
-const char *asn_ops[] = {":="};
+const char *asn_ops[] = {":=", ":"};
 const char delimiters[] = " ;\n\t=:<>+-*/()";
 string allow_syms = "(),:;.\"";
 
@@ -88,7 +88,7 @@ TOKEN* GetOperator()
     // check token type
     if (token_type == TOKEN_UKWN) return NULL;
     TOKEN* token = new TOKEN;
-    token->token_name = token_name;
+    token->token_value = token_name;
     token->token_type = token_type;
     Lexeme = Lexeme.substr(token_name.length());
     return token;
@@ -234,8 +234,8 @@ TOKEN* GetNextToken()
         return token_desc;   // return NULL
     else {
         token_desc = new TOKEN;
-        token_desc->token_name = token;
-        token_desc->token_type = GetTokenType(token_desc->token_name);
+        token_desc->token_value = token;
+        token_desc->token_type = GetTokenType(token_desc->token_value);
         switch (token_desc->token_type) {
             case TOKEN_DGIT:
                 Value = atoi(token.c_str());
@@ -244,7 +244,7 @@ TOKEN* GetNextToken()
                 ValueR = atof(token.c_str());
                 break;
             case TOKEN_LTRL:
-                Literal = token_desc->token_name;
+                Literal = token_desc->token_value;
                 break;
             default:
                 Value = 0;
