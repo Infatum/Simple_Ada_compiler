@@ -30,22 +30,25 @@ Node<int, string> Parser::terminal()
         GetNextToken();
         return n;
     }  else {
-        parent_expr();
+        return parent_expr();
     }
 }
 
 Node<int, string> Parser::summa()
 {
       int kind;
-      Node<int,string> n_temp, n;
-      n_temp = terminal();
+      vector<Node<int,string>> sibl_nodes;
+      sibl_nodes.push_back(terminal());
+      Node<int,string> n;
+
       while (token->token_type == TOKEN_ADOP) {
            if (token->token_value == "+")
                kind = ADD;
            else
                kind = SUBSTR;
            GetNextToken();
-           Node<int,string> n(kind, n_temp, terminal());
+           sibl_nodes.push_back(terminal());
+           n = Node<int,string>(kind, sibl_nodes);
        }
       return n;
 }
@@ -70,17 +73,21 @@ Node<int,string> Parser::relational_operation()
 
 Node<int, string> Parser::expretion()
 {
+    std::vector<Node<int,string>> sibling_nodes;
+
     if (token->token_type != TOKEN_TKID)
         return relational_operation();
     Node<int,string> n(relational_operation());
     if (n.kind == TOKEN_TKID && token->token_type == TOKEN_ASOP) {
         GetNextToken();
-        n = Node<int,string>(SET, n, expretion());
+        sibling_nodes.push_back(n);
+        sibling_nodes.push_back(expretion());
+        n = Node<int,string>(SET, sibling_nodes);
     }
     return n;
 }
 
-Node<int, string> Parser::parent_expr()
+Node<int,string> Parser::parent_expr()
 {
     if (token->token_value != "(")
         error("'(' expected");
@@ -94,7 +101,7 @@ Node<int, string> Parser::parent_expr()
 
 Node<int, string> Parser::keyword()
 {
-    Node n<int,string>;
+    Node<int,string> n;
     string keyword = boost::to_upper(token->token_value);
     if (keyword == TOKEN_RSVD) {
         if (keyword == "PROCEDURE")
@@ -112,8 +119,8 @@ Node<int, string> Parser::keyword()
 
 Node<int, string> Parser::statement()
 {
-    Node n<int,string>;
-    std::vector<Node> tmp_opers;
+    Node<int,string> n;
+    std::vector<Node<int,string>> tmp_opers;
     string lexem = boost::to_upper(token->token_value);
     if (token->token_type == TOKEN_RLOP) {
         n = relational_operation();
