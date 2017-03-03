@@ -26,9 +26,12 @@ public:
     Node<T> expretion();
     template <typename T>
     Node<T> parent_expr();
-//    Node<int,string> statement();
-//    Node<int,string> keyword();
-//    Node<int,string> parse();
+    template <typename T>
+    Node<T> statement();
+    template <typename T>
+    Node<T> keyword();
+    template <typename T>
+    Node<T> parse();
 };
 
 #endif // PARSER_H

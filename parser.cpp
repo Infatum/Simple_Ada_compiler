@@ -101,71 +101,73 @@ Node<T> Parser::parent_expr()
     return n;
 }
 
-//Node<int, string> Parser::keyword()
-//{
-//    Node<int,string> n;
-//    string keyword = boost::to_upper(token->token_value);
-//    if (keyword == TOKEN_RSVD) {
-//        if (keyword == "PROCEDURE")
-//            n = Node<int,string>(PROCD);
-//         if (keyword == "LOOP")
-//            n = Node<int,string>(WHILE);
-//         if (keyword == "IS")
-//            n = Node<int,string>(SCOPE);
-//         if (keyword == "END")
-//             n = Node<int,string>(ENDSCOPE);
-//    }
-//    GetNextToken();
-//    return n;
-//}
+template <typename T>
+Node<T> Parser::keyword()
+{
+    Node<T> n;
+    string keyword = boost::to_upper(token->token_value);
+    if (token->token_type == TOKEN_RSVD) {
+        if (keyword == "PROCEDURE")
+            n = Node<T>(PROCD);
+         if (keyword == "LOOP")
+            n = Node<T>(WHILE);
+         if (keyword == "IS")
+            n = Node<T>(SCOPE);
+         if (keyword == "END")
+             n = Node<T>(ENDSCOPE);
+    }
+    GetNextToken();
+    return n;
+}
+template <typename T>
+Node<T> Parser::statement()
+{
+    Node<T> n;
+    std::vector<Node<T>> tmp_opers;
+    string lexem = boost::to_upper(token->token_value);
+    if (token->token_type == TOKEN_RLOP) {
+        n = relational_operation<T>();
+        GetNextToken();
+        n.ass_sibling_node(parent_expr<T>());
+        n.ass_sibling_node(statement<T>());
 
-//Node<int, string> Parser::statement()
-//{
-//    Node<int,string> n;
-//    std::vector<Node<int,string>> tmp_opers;
-//    string lexem = boost::to_upper(token->token_value);
-//    if (token->token_type == TOKEN_RLOP) {
-//        n = relational_operation();
-//        GetNextToken();
-//        n.ass_sibling_node(parent_expr());
-//        n.ass_sibling_node(statement());
+        if (lexem == "ELSEIF") {
+            n = Node<T>(ELIF);
+            GetNextToken();
+            n.ass_sibling_node(statement<T>());
+        }
+    } else if (token->token_type == TOKEN_RSVD) {
+       n = keyword<T>();
+       GetNextToken();
+       n.ass_sibling_node(terminal<T>());
+       GetNextToken();
+       n.ass_sibling_node(parent_expr<T>());
+       n.ass_sibling_node(statement<T>());
+    } else if (token->token_value == ";") {
+        n = Node<T>(ENDSTAT);
+        GetNextToken();
+    } else if (token->token_type == TOKEN_ALWD)
+        if (lexem == "(") {
+            n = Node<T>(EMPTY);
+            GetNextToken();
+            while (token->token_value != ")")
+                n = Node<T>(SEQ, n, statement<T>());
+            GetNextToken();
+        } else {
+            n = Node<T>(EXPR, expretion<T>());
+            if (token->token_value != ";")
+                error("';' expected");
+            GetNextToken();
+    }
+    return n;
+}
 
-//        if (lexem == "ELSEIF") {
-//            n = Node<int,string>(ELIF);
-//            GetNextToken();
-//            n.ass_sibling_node(statement());
-//        }
-//    } else if (token->token_type == TOKEN_RSVD) {
-//       n = keyword();
-//       GetNextToken();
-//       n.ass_sibling_node(terminal());
-//       GetNextToken();
-//       n.ass_sibling_node(parent_expr());
-//       n.ass_sibling_node(statement());
-//    } else if (token->token_value == ";") {
-//        n = Node<int,string>(ENDSTAT);
-//        GetNextToken();
-//    } else if (token->token_type == TOKEN_ALWD)
-//        if (lexem == "(") {
-//            n = Node<int,string>(EMPTY);
-//            GetNextToken();
-//            while (token->token_value != ")")
-//                n = Node<int,string>(SEQ, n, statement());
-//            GetNextToken();
-//        } else {
-//            n = Node<int,string>(EXPR, expretion());
-//            if (token->token_value != ";")
-//                error("';' expected");
-//            GetNextToken();
-//    }
-//    return n;
-//}
-
-//Node<int, string> Parser::parse()
-//{
-//    GetNextToken();
-//    Node<int,string> node(PROG, statement());
-//    return node;
-//}
+template <typename T>
+Node<T> Parser::parse()
+{
+    GetNextToken();
+    Node<T> node(PROG, statement<T>());
+    return node;
+}
 
 
