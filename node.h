@@ -25,12 +25,12 @@ public:
     explicit Node(const int k, const TValue &s);
 
     explicit Node(const Node<TValue> &node);
-//    explicit Node(const int &k, const Node &parent_n, TValue *val = nullptr);
+    explicit Node(const int &k, const Node<TValue> &parent_n, TValue *val = nullptr);
 
-//    explicit Node(const int &k, const Node &parent_n, vector<Node<int,TValue>> siblings,
-//                  TValue *val = nullptr);
+    explicit Node(const int &k, const Node &parent_n, vector<Node<TValue>> siblings,
+                  TValue *val = nullptr);
 
-//    explicit Node(const int &k, vector<Node<int,TValue>> sibling_ns, TValue *val = nullptr);
+    explicit Node(const int &k, vector<Node<TValue>> sibling_ns, TValue *val = nullptr);
 
     void set_val(const TValue &val)
     {
@@ -52,10 +52,15 @@ public:
         return value;
     }
 
-    void ass_sibling_node(const Node<TValue> &op)
+    void add_sibling_node(const Node<TValue> &op)
     {
         op.parent = parent;
         sibling_nodes.push_back(op);
+    }
+
+    void add_parent(const Node<TValue> &parent_n)
+    {
+
     }
 
     std::vector<int> get_sibling_nodes() const
@@ -73,6 +78,19 @@ public:
         sibling_nodes.push_back(node);
     }
 
+    Node<TValue> operator=(const Node &n)
+    {
+        if (&n != this) {
+            delete value, parent;
+            sibling_nodes.clear();
+            *value = n.value;
+            *parent = Node(n.parent);
+            sibling_nodes = n.sibling_nodes;
+            return *this;
+        } else
+            return *this;
+    }
+
     virtual ~Node()
     {
         delete kind, value, parent;
@@ -83,37 +101,37 @@ public:
 template <class TValue>
 Node<TValue>::Node(const int k, const TValue &v) : kind(k), value(v) { }
 
-//template <class int, class TValue>
-//Node<int,TValue>::Node(const Node<int, TValue> &node)
-//{
-//    if (node.parent != nullptr) {
-//        this->parent = node.parent;
-//    }
-//}
+template <class TValue>
+Node<TValue>::Node(const Node<TValue> &node)
+{
+    if (node.parent != nullptr)
+        add_parent(node.parent);
+    if (node.sibling_nodes.size() > 0)
+        sibling_nodes = node.sibling_nodes;
+    if (node.value != nullptr)
+        *value = node->value;
+}
 
-/*template <class int, class TValue>
-Node<int,TValue>::Node(const int &k, const Node &parent_n, TValue *val)
-    : kind(k), parent(parent_n)
+template <class TValue>
+Node<TValue>::Node(const int &k, const Node<TValue> &parent_n, TValue *val)
+    : kind(k)
 {
     if (val != nullptr) {
-        this->*value = *val;
+        //this->value = *val;
     }
 }
-template <class int, class TValue>
-Node<int,TValue>::Node(const int &k, const Node &parent_n, vector<Node<int,TValue>> siblings,
-TValue *val) : kind(k), parent(parent_n), sibling_nodes(siblings)
-{
+
+template <class TValue>
+Node<TValue>::Node(const int &k, const Node &parent_n, vector<Node<TValue>> siblings,
+                   TValue *val) : kind(k)
+ {
     if (val != nullptr) {
-        this->*value = *val;
-    }
-}
-template <class int, class TValue>
-Node<int,TValue>::Node(const int &k, vector<Node<int,TValue>> sibling_ns, TValue *val)
-    : kind(k), sibling_nodes(sibling_ns)
-{
-     if (val != nullptr) {
-        *value = *val;
-    }
-}*/
+        value = *val;
+    } if (parent_n.parent != nullptr)
+        parent.add_parent(parent_n.n);
+    if (siblings.size() > 0)
+        sibling_nodes = siblings;
+  }
+
 
 #endif // NODE_H

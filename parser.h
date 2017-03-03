@@ -15,7 +15,8 @@ private:
 protected:
     void error(const string &);
 public:
-    Parser(TOKEN &t);
+    Parser();
+    Parser(TOKEN *t);
     template <typename T>
     Node<T> terminal();
     template <typename T>

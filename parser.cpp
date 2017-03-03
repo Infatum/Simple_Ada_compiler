@@ -1,10 +1,12 @@
 #include "parser.h"
 
 
-Parser::Parser(TOKEN &t)
-{
-    if (&t != nullptr) {
+Parser::Parser() { }
 
+Parser::Parser(TOKEN *t)
+{
+    if (t != nullptr) {
+        this->token = t;
     }
 }
 
@@ -128,21 +130,21 @@ Node<T> Parser::statement()
     if (token->token_type == TOKEN_RLOP) {
         n = relational_operation<T>();
         GetNextToken();
-        n.ass_sibling_node(parent_expr<T>());
-        n.ass_sibling_node(statement<T>());
+        n.add_sibling_node(parent_expr<T>());
+        n.add_sibling_node(statement<T>());
 
         if (lexem == "ELSEIF") {
             n = Node<T>(ELIF);
             GetNextToken();
-            n.ass_sibling_node(statement<T>());
+            n.add_sibling_node(statement<T>());
         }
     } else if (token->token_type == TOKEN_RSVD) {
        n = keyword<T>();
        GetNextToken();
-       n.ass_sibling_node(terminal<T>());
+       n.add_sibling_node(terminal<T>());
        GetNextToken();
-       n.ass_sibling_node(parent_expr<T>());
-       n.ass_sibling_node(statement<T>());
+       n.add_sibling_node(parent_expr<T>());
+       n.add_sibling_node(statement<T>());
     } else if (token->token_value == ";") {
         n = Node<T>(ENDSTAT);
         GetNextToken();

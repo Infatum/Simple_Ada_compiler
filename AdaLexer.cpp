@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdlib.h>
-#include "LexicalAnalyzer.h"
+#include "parser.h"
+//#include "LexicalAnalyzer.h"
 
 using namespace std;
 
@@ -45,6 +46,7 @@ int main(int argc, char*argv[])
     cerr << "***************  Parsing Token  *********************" << endl << endl;
     //TODO: rewrite to Parser object and assign token to parser object
     TOKEN* token = NULL;
+    Parser p;
     while (token = GetNextToken()) {
         // print out the token
         switch (token->token_type) {
@@ -54,6 +56,8 @@ int main(int argc, char*argv[])
 
         case TOKEN_RSVD:
             cerr << "Reserved keyword\t";
+//            if (isdigit())
+//            p.keyword<
             //if (find(keyword_list.begin(), keyword_list.end(), token->token_name)
             //== keyword_list.end()) keyword_list.push_back(token->token_name);
             break;
