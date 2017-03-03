@@ -15,15 +15,15 @@ private:
 protected:
     void error(const string &);
 public:
-    Parser(TOKEN *t = nullptr);
-    Node terminal();
-    Node summa();
-    Node relational_operation();
-    Node expretion();
-    Node parent_expr();
-    Node statement();
-    Node keyword();
-    Node parse();
+    Parser(TOKEN &t);
+    Node<int,string> terminal();
+    Node<int,string> summa();
+    Node<int,string> relational_operation();
+    Node<int,string> expretion();
+    Node<int,string> parent_expr();
+    Node<int,string> statement();
+    Node<int,string> keyword();
+    Node<int,string> parse();
 };
 
 #endif // PARSER_H

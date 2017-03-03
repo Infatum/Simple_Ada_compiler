@@ -1,32 +1,58 @@
 #ifndef NODE_H
 #define NODE_H
 #include <vector>
+#include <unordered_map>
 #include <array>
 
-template <class TKey, class TValue>
+template <class TKey, class TValue, class V = std::vector<TKey, TValue>>
 class Node
 {
 private:
     TKey *kind;
     TValue *value;
-    Node *left;
-    Node *right;
-    std::vector<TKey> operators;
+    Node *parent;
+    std::vector<Node> sibling_nodes;
+    std::unordered_map<TKey,TValue> operators;
 
 public:
     Node() { }
-    explicit Node(const TKey &kind, const TValue &val = nullptr, const std::vector<TKey, TValue> &ar = nullptr)
+    Node(const TKey &kind, const TValue &val = nullptr,
+         const std::unordered_map<TKey, TValue> &op = std::unordered_map<TKey,TValue>())
     {
         this->kind = kind;
         if (val != nullptr) {
             this->value = val;
         }
-        if (ar != nullptr) {
-            this->operators.assign(ar.begin(), ar.end());
+        if (op.size() > 0) {
+            this->operators = op;
         }
     }
 
-    void set_val(const TValue &val)
+    Node(const TKey &kind, const Node &n, const TValue &val = nullptr,
+         const std::unordered_map<TKey, TValue> &op = std::unordered_map<TKey,TValue>())
+        : kind(kind), parent(n)
+    {
+        if (val != nullptr) {
+            this->value = val;
+        } if (op.size() > 0) {
+            operators = op;
+        }
+    }
+
+    Node(const TKey &kind, const std::vector &sn = {}, const TValue &val = nullptr,
+         const std::unordered_map<TKey, TValue> &op = std::unordered_map<TKey,TValue>())
+        : kind(kind)
+    {
+        if (sn.size() > 0) {
+            sibling_nodes = sn;
+        } if (val != nullptr) {
+            value = val;
+        } if (op.size() > 0) {
+           op.size();
+        }
+    }
+
+    void set_val(const TValue &sn )
     {
         value = val;
     }
@@ -55,7 +81,12 @@ public:
     {
         return operators;
     }
-    virtual ~Node();
+
+    virtual ~Node()
+    {
+        delete kind, value, parent;
+        operators.clear();
+    }
 };
 
 #endif // NODE_H

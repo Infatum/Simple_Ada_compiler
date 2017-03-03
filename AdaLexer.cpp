@@ -72,7 +72,7 @@ int main(int argc, char*argv[])
 
         case TOKEN_TKID:
             cerr << "Token ID\t\t";
-            if (token->token_name.length() > MAX_ID_LEN)
+            if (token->token_value.length() > MAX_ID_LEN)
                 cerr << "(Token ID length should be shorter than " << MAX_ID_LEN << ")";
             //cerr << endl;
             //if (find(tokenid_list.begin(), tokenid_list.end(), token->token_name)
@@ -106,16 +106,16 @@ int main(int argc, char*argv[])
             break;
 
         case TOKEN_ALWD:
-            if (token->token_name.compare("(") == 0)
+            if (token->token_value.compare("(") == 0)
                 cerr << "L-parent\t\t";
-            else if (token->token_name.compare(")")== 0 )
+            else if (token->token_value.compare(")")== 0 )
                 cerr << "R-parent\t\t";
             else
                 cerr << "Allowed symbol\t\t";
             break;
 
         }
-        cerr << token->token_name.c_str() << endl;
+        cerr << token->token_value.c_str() << endl;
     }
     cerr<<endl;
     cerr << "***************  Parsing Finished  ******************" << endl<<endl;

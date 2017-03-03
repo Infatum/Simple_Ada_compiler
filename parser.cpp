@@ -1,14 +1,14 @@
 #include "parser.h"
 
 
-Parser::Parser(TOKEN *t = nullptr)
+Parser::Parser(TOKEN &t)
 {
-    if (t != nullptr) {
-        this->token = t;
+    if (&t != nullptr) {
+
     }
 }
 
-Parser::error(const string &)
+void Parser::error(const string &s)
 {
     cerr << "Parse error: " << s << '\n';
 }
@@ -22,11 +22,11 @@ Parser::error(const string &)
 *** IN/OUT ARGS:                                                                        ***
 *** RETURN     : Node                                                                   ***
 ******************************************************************************************/
-Node Parser::terminal()
+Node<int, string> Parser::terminal()
 {
     if (token->token_type == TOKEN_TKID || token->token_type == TOKEN_REAL
             || token->token_type == TOKEN_LTRL) {
-        Node n(VAR, token->token_value);
+        Node<int,string> n(VAR, token->token_value);
         GetNextToken();
         return n;
     }  else {
@@ -34,10 +34,10 @@ Node Parser::terminal()
     }
 }
 
-Node Parser::summa()
+Node<int, string> Parser::summa()
 {
       int kind;
-      Node n_temp, n;
+      Node<int,string> n_temp, n;
       n_temp = terminal();
       while (token->token_type == TOKEN_ADOP) {
            if (token->token_value == "+")
@@ -45,69 +45,74 @@ Node Parser::summa()
            else
                kind = SUBSTR;
            GetNextToken();
-           Node n(kind, n_temp, terminal());
+           Node<int,string> n(kind, n_temp, terminal());
        }
       return n;
 }
 
-Node Parser::relational_operation()
+Node<int,string> Parser::relational_operation()
 {
-    Node n = summa();
+    Node<int,string> n = summa();
+    vector<Node<int,string>> tmp_nodes;
     if (token->token_value == "<") {
         GetNextToken();
-        n = Node(LT, n, summa());
+        tmp_nodes.push_back(n);
+        tmp_nodes.push_back(summa());
+        n = Node<int,string>(LT, tmp_nodes);
     } else if (token->token_value == ">") {
         GetNextToken();
-        n = Node(MT, n, summa());
+        tmp_nodes.push_back(n);
+        tmp_nodes.push_back(summa());
+        n = Node<int,string>(MT, summa());
     }
     return n;
 }
 
-Node Parser::expretion()
+Node<int, string> Parser::expretion()
 {
     if (token->token_type != TOKEN_TKID)
         return relational_operation();
-    Node n(relational_operation());
+    Node<int,string> n(relational_operation());
     if (n.kind == TOKEN_TKID && token->token_type == TOKEN_ASOP) {
         GetNextToken();
-        n = Node(SET, n, expretion());
+        n = Node<int,string>(SET, n, expretion());
     }
     return n;
 }
 
-Node Parser::parent_expr()
+Node<int, string> Parser::parent_expr()
 {
     if (token->token_value != "(")
         error("'(' expected");
     GetNextToken();
-    Node n(expretion());
+    Node<int,string> n(expretion());
     if (token->token_value != ")")
         error("')' expected");
     GetNextToken();
     return n;
 }
 
-Node Parser::keyword()
+Node<int, string> Parser::keyword()
 {
-    Node n;
+    Node n<int,string>;
     string keyword = boost::to_upper(token->token_value);
     if (keyword == TOKEN_RSVD) {
         if (keyword == "PROCEDURE")
-            n = Node(PROCD);
+            n = Node<int,string>(PROCD);
          if (keyword == "LOOP")
-            n = Node(WHILE);
+            n = Node<int,string>(WHILE);
          if (keyword == "IS")
-            n = Node(SCOPE);
+            n = Node<int,string>(SCOPE);
          if (keyword == "END")
-             n = Node(ENDSCOPE);
+             n = Node<int,string>(ENDSCOPE);
     }
     GetNextToken();
     return n;
 }
 
-Node Parser::statement()
+Node<int, string> Parser::statement()
 {
-    Node n;
+    Node n<int,string>;
     std::vector<Node> tmp_opers;
     string lexem = boost::to_upper(token->token_value);
     if (token->token_type == TOKEN_RLOP) {
@@ -117,7 +122,7 @@ Node Parser::statement()
         n.add_operator(statement());
 
         if (lexem == "ELSEIF") {
-            n = Node(ELIF);
+            n = Node<int,string>(ELIF);
             GetNextToken();
             n.add_operator(statement());
         }
@@ -129,17 +134,17 @@ Node Parser::statement()
        n.add_operator(parent_expr());
        n.add_operator(statement());
     } else if (token->token_value == ";") {
-        n = Node(ENDSTAT);
+        n = Node<int,string>(ENDSTAT);
         GetNextToken();
     } else if (token->token_type == TOKEN_ALWD)
         if (lexem == "(") {
-            n = Node(EMPTY);
+            n = Node<int,string>(EMPTY);
             GetNextToken();
             while (token->token_value != ")")
-                n = Node(SEQ, n, statement());
+                n = Node<int,string>(SEQ, n, statement());
             GetNextToken();
         } else {
-            n = Node(EXPR, expretion());
+            n = Node<int,string>(EXPR, expretion());
             if (token->token_value != ";")
                 error("';' expected");
             GetNextToken();
@@ -147,10 +152,10 @@ Node Parser::statement()
     return n;
 }
 
-Node Parser::parse()
+Node<int, string> Parser::parse()
 {
     GetNextToken();
-    Node node(PROG, statement());
+    Node<int,string> node(PROG, statement());
     return node;
 }
 
