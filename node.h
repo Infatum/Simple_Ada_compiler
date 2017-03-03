@@ -4,48 +4,45 @@
 #include <unordered_map>
 #include <array>
 #include <string>
+#include <cassert>
 using std::string;
 using std::unordered_map;
 using std::vector;
 
-template <class TKey, class TValue>
+template <class TValue>
 class Node
 {
 private:
     typedef unordered_map<int,string> unord_map;
-    TKey *kind;
+    int kind;
     TValue *value;
     Node *parent;
-    vector<Node> sibling_nodes;
-    unordered_map<TKey,TValue> operators;
+    vector<Node<TValue>> sibling_nodes;
 
 public:
     Node() { }
 
-    explicit Node(const TKey &, const TValue &);
+    explicit Node(const int k, const TValue &s);
 
-    explicit Node(const TKey &k, TValue &val = nullptr,
-          unord_map &op = unord_map());
+    explicit Node(const Node<TValue> &node);
+//    explicit Node(const int &k, const Node &parent_n, TValue *val = nullptr);
 
-    explicit Node(const TKey &k, const Node &n, TValue &val = nullptr,
-          unord_map &op = unord_map());
+//    explicit Node(const int &k, const Node &parent_n, vector<Node<int,TValue>> siblings,
+//                  TValue *val = nullptr);
 
-    explicit Node(const TKey &kind, std::vector<Node> &sn = {}, TValue &val = nullptr,
-          unord_map &op = unord_map());
+//    explicit Node(const int &k, vector<Node<int,TValue>> sibling_ns, TValue *val = nullptr);
 
-    explicit Node(const TKey &k, const Node &n, TValue &val = nullptr);
-
-    void set_val(const TValue &val )
+    void set_val(const TValue &val)
     {
         value = val;
     }
 
-    void set_kind(const TKey &k)
+    void set_kind(const int &k)
     {
         kind = k;
     }
 
-    TKey get_kind() const
+    int get_kind() const
     {
         return kind;
     }
@@ -55,67 +52,68 @@ public:
         return value;
     }
 
-    void add_operator(const TKey &op)
+    void ass_sibling_node(const Node<TValue> &op)
     {
-        operators.push_back(op);
+        op.parent = parent;
+        sibling_nodes.push_back(op);
     }
 
-    std::vector<TKey> get_operators() const
+    std::vector<int> get_sibling_nodes() const
     {
-        return operators;
+        return sibling_nodes;
+    }
+
+    void set_sibling_nodes(const vector<Node<TValue>> &nodes)
+    {
+        sibling_nodes = nodes;
+    }
+
+    void add_sibling(Node<TValue> &node)
+    {
+        sibling_nodes.push_back(node);
     }
 
     virtual ~Node()
     {
         delete kind, value, parent;
-        operators.clear();
+        sibling_nodes.clear();
     }
 };
 
-template <class TKey, class TValue>
-Node<TKey,TValue>::Node(const TKey &k, TValue &val, unord_map &op) : kind(k)
-{
-    this->kind = k;
-    if (val != nullptr) {
-        this->value = val;
-    }
-    if (op.size() > 0) {
-        this->operators = op;
-    }
-}
-template <class TKey, class TValue>
-Node<TKey,TValue>::Node(const TKey &k, const Node &n, TValue &val, unord_map &op)
-    : kind(k), parent(n)
-{
-    kind = k;
-    parent = n;
-    if (val != nullptr) {
-        this->value = val;
-    } if (op.size() > 0) {
-        operators = op;
-    }
-}
-template <class TKey, class TValue>
-Node<TKey,TValue>::Node(const TKey &kind, std::vector<Node> &sn, TValue &val, unord_map &op)
-    : kind(kind)
-{
-    this->kind = kind;
-    if (sn.size() > 0) {
-        sibling_nodes = sn;
-    } if (val != nullptr) {
-        value = val;
-    } if (op.size() > 0) {
-       op.size();
-    }
-}
+template <class TValue>
+Node<TValue>::Node(const int k, const TValue &v) : kind(k), value(v) { }
 
-template <class TKey, class TValue>
-Node<TKey,TValue>::Node(const TKey &k, const Node &n, TValue &val) : kind(k), parent(n)
-{
-    if (val != nullptr)
-        value = val;
-}
+//template <class int, class TValue>
+//Node<int,TValue>::Node(const Node<int, TValue> &node)
+//{
+//    if (node.parent != nullptr) {
+//        this->parent = node.parent;
+//    }
+//}
 
-template <class TKey, class TValue>
-Node<TKey,TValue>::Node(const TKey &k, const TValue &v) : kind(k), value(v) { }
+/*template <class int, class TValue>
+Node<int,TValue>::Node(const int &k, const Node &parent_n, TValue *val)
+    : kind(k), parent(parent_n)
+{
+    if (val != nullptr) {
+        this->*value = *val;
+    }
+}
+template <class int, class TValue>
+Node<int,TValue>::Node(const int &k, const Node &parent_n, vector<Node<int,TValue>> siblings,
+TValue *val) : kind(k), parent(parent_n), sibling_nodes(siblings)
+{
+    if (val != nullptr) {
+        this->*value = *val;
+    }
+}
+template <class int, class TValue>
+Node<int,TValue>::Node(const int &k, vector<Node<int,TValue>> sibling_ns, TValue *val)
+    : kind(k), sibling_nodes(sibling_ns)
+{
+     if (val != nullptr) {
+        *value = *val;
+    }
+}*/
+
 #endif // NODE_H
