@@ -18,10 +18,14 @@ public:
     Parser(TOKEN &t);
     template <typename T>
     Node<T> terminal();
-//    Node<int,string> summa();
-//    Node<int,string> relational_operation();
-//    Node<int,string> expretion();
-//    Node<int,string> parent_expr();
+    template <typename T>
+    Node<T> summa();
+    template <typename T>
+    Node<T> relational_operation();
+    template <typename T>
+    Node<T> expretion();
+    template <typename T>
+    Node<T> parent_expr();
 //    Node<int,string> statement();
 //    Node<int,string> keyword();
 //    Node<int,string> parse();

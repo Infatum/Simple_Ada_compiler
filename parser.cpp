@@ -31,74 +31,75 @@ Node<T> Parser::terminal()
         GetNextToken();
         return n;
     }  else {
-        return parent_expr();
+        return parent_expr<T>();
     }
 }
+template <typename T>
+Node<T> Parser::summa()
+{
+      int kind;
+      vector<Node<T>> sibl_nodes;
+      sibl_nodes.push_back(terminal<T>());
+      Node<T> n;
 
-//Node<int, string> Parser::summa()
-//{
-//      int kind;
-//      vector<Node<int,string>> sibl_nodes;
-//      sibl_nodes.push_back(terminal());
-//      Node<int,string> n;
+      while (token->token_type == TOKEN_ADOP) {
+           if (token->token_value == "+")
+               kind = ADD;
+           else
+               kind = SUBSTR;
+           GetNextToken();
+           sibl_nodes.push_back(terminal<T>());
+           n = Node<T>(kind, sibl_nodes);
+       }
+      return n;
+}
+template <typename T>
+Node<T> Parser::relational_operation()
+{
+    Node<T> n = summa<T>();
+    vector<Node<T>> tmp_nodes;
+    if (token->token_value == "<") {
+        GetNextToken();
+        tmp_nodes.push_back(n);
+        tmp_nodes.push_back(summa<T>());
+        n = Node<T>(LT, tmp_nodes);
+    } else if (token->token_value == ">") {
+        GetNextToken();
+        tmp_nodes.push_back(n);
+        tmp_nodes.push_back(summa<T>());
+        n = Node<T>(MT, summa<T>());
+    }
+    return n;
+}
+template<typename T>
+Node<T> Parser::expretion()
+{
+    std::vector<Node<T>> sibling_nodes;
 
-//      while (token->token_type == TOKEN_ADOP) {
-//           if (token->token_value == "+")
-//               kind = ADD;
-//           else
-//               kind = SUBSTR;
-//           GetNextToken();
-//           sibl_nodes.push_back(terminal());
-//           n = Node<int,string>(kind, sibl_nodes);
-//       }
-//      return n;
-//}
+    if (token->token_type != TOKEN_TKID)
+        return relational_operation<T>();
+    Node<T> n(relational_operation<T>());
+    if (n.kind == TOKEN_TKID && token->token_type == TOKEN_ASOP) {
+        GetNextToken();
+        sibling_nodes.push_back(n);
+        sibling_nodes.push_back(expretion<T>());
+        n = Node<T>(SET, sibling_nodes);
+    }
+    return n;
+}
 
-//Node<int,string> Parser::relational_operation()
-//{
-//    Node<int,string> n = summa();
-//    vector<Node<int,string>> tmp_nodes;
-//    if (token->token_value == "<") {
-//        GetNextToken();
-//        tmp_nodes.push_back(n);
-//        tmp_nodes.push_back(summa());
-//        n = Node<int,string>(LT, tmp_nodes);
-//    } else if (token->token_value == ">") {
-//        GetNextToken();
-//        tmp_nodes.push_back(n);
-//        tmp_nodes.push_back(summa());
-//        n = Node<int,string>(MT, summa());
-//    }
-//    return n;
-//}
-
-//Node<int, string> Parser::expretion()
-//{
-//    std::vector<Node<int,string>> sibling_nodes;
-
-//    if (token->token_type != TOKEN_TKID)
-//        return relational_operation();
-//    Node<int,string> n(relational_operation());
-//    if (n.kind == TOKEN_TKID && token->token_type == TOKEN_ASOP) {
-//        GetNextToken();
-//        sibling_nodes.push_back(n);
-//        sibling_nodes.push_back(expretion());
-//        n = Node<int,string>(SET, sibling_nodes);
-//    }
-//    return n;
-//}
-
-//Node<int,string> Parser::parent_expr()
-//{
-//    if (token->token_value != "(")
-//        error("'(' expected");
-//    GetNextToken();
-//    Node<int,string> n/*(expretion())*/;
-//    if (token->token_value != ")")
-//        error("')' expected");
-//    GetNextToken();
-//    return n;
-//}
+template <typename T>
+Node<T> Parser::parent_expr()
+{
+    if (token->token_value != "(")
+        error("'(' expected");
+    GetNextToken();
+    Node<T> n(expretion<T>());
+    if (token->token_value != ")")
+        error("')' expected");
+    GetNextToken();
+    return n;
+}
 
 //Node<int, string> Parser::keyword()
 //{
