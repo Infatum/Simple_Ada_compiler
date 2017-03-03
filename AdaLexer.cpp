@@ -14,7 +14,6 @@ using namespace std;
 *** IN/OUT ARGS:                                                                        ***
 *** RETURN     : string                                                                 ***
 ******************************************************************************************/
-
 string readfile(string filepath)
 {
     ifstream file(filepath.c_str());

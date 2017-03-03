@@ -47,8 +47,12 @@ Node<T> Parser::summa()
       while (token->token_type == TOKEN_ADOP) {
            if (token->token_value == "+")
                kind = ADD;
-           else
-               kind = SUBSTR;
+           else if (token->token_value == "-")
+               kind = SUBTR;
+           else if (token->token_value == "*")
+               kind = MULT;
+           else if (token->token_value == "/")
+               kind = DIV;
            GetNextToken();
            sibl_nodes.push_back(terminal<T>());
            n = Node<T>(kind, sibl_nodes);
