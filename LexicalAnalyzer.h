@@ -37,3 +37,5 @@ extern string	       Lexeme;
 extern int             Value;
 extern float	       ValueR;
 extern string	       Literal;
+
+bool IsDigital(string token);

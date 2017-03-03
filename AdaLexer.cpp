@@ -47,6 +47,7 @@ int main(int argc, char*argv[])
     //TODO: rewrite to Parser object and assign token to parser object
     TOKEN* token = NULL;
     Parser p;
+
     while (token = GetNextToken()) {
         // print out the token
         switch (token->token_type) {
@@ -56,14 +57,17 @@ int main(int argc, char*argv[])
 
         case TOKEN_RSVD:
             cerr << "Reserved keyword\t";
-//            if (isdigit())
-//            p.keyword<
+            //p.keyword();
+
             //if (find(keyword_list.begin(), keyword_list.end(), token->token_name)
             //== keyword_list.end()) keyword_list.push_back(token->token_name);
             break;
 
         case TOKEN_DGIT:
             cerr << "Integer number\t\t";
+            if (IsDigital(token->token_value)) {
+
+            }
             //if (find(digital_list.begin(), digital_list.end(), token->token_name)
             //== digital_list.end()) digital_list.push_back(token->token_name);
             break;
