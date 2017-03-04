@@ -13,8 +13,6 @@ private:
 protected:
     void error(const string &);
 public:
-    enum STATE { VAR = 1, SET, ENDSTAT, CONST, ADD, SUBTR, LESS, MULT, IF, ELIF, DIV,
-           ELSE, MORE, WHILE, PROCD, SCOPE, ENDSCOPE, EMPTY, SEQ, EXPR, PROG };
     Parser();
     Parser(TOKEN *t);
     template <typename T>
