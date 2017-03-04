@@ -1,33 +1,37 @@
 #ifndef NODE_H
 #define NODE_H
 #include <vector>
-#include <unordered_map>
 #include <array>
 #include <string>
 #include <cassert>
+#include "parser.h"
 using std::string;
-using std::unordered_map;
 using std::vector;
+
+enum STATE { VAR = 1, SET, ENDSTAT, CONST, ADD, SUBTR, LESS, MULT, IF, ELIF, DIV,
+       ELSE, MORE, WHILE, PROCD, SCOPE, ENDSCOPE, EMPTY, SEQ, EXPR, PROG };
 
 template <class TValue>
 class Node
 {
 private:
-    typedef unordered_map<int,string> unord_map;
-    int kind;
+    STATE state;
     TValue *value;
     Node *parent;
     vector<Node<TValue>> child_nodes;
 
+protected:
+    set_state(const STATE st)
+    {
+        state = st;
+    }
+
 public:
-    Node() : value(nullptr), parent(nullptr) { }
-
-    explicit Node(const int k, const TValue &s);
-
+    Node() : state(EMPTY), value(nullptr), parent(nullptr) { }
+    explicit Node(const STATE s, const TValue &v);
     explicit Node(const Node<TValue> &node);
-    explicit Node(const int &k, const Node<TValue> &child, TValue *val = nullptr);
-
-    explicit Node(const int &k, vector<Node<TValue> > &children,
+    explicit Node(const STATE s, const Node<TValue> &child, TValue *val = nullptr);
+    explicit Node(const STATE s, vector<Node<TValue> > &children,
                   TValue *val = nullptr);
 
     void set_val(const TValue &val)
@@ -35,14 +39,9 @@ public:
         value = val;
     }
 
-    void set_kind(const int &k)
+    int get_state() const
     {
-        kind = k;
-    }
-
-    int get_kind() const
-    {
-        return kind;
+        return state;
     }
 
     TValue get_value() const
@@ -91,13 +90,13 @@ public:
 
     virtual ~Node()
     {
-        delete kind, value, parent;
+        delete state, value, parent;
         child_nodes.clear();
     }
 };
 
 template <class TValue>
-Node<TValue>::Node(const int k, const TValue &v) : kind(k), value(v) { }
+Node<TValue>::Node(const STATE s, const TValue &v) : state(s), value(v) { }
 
 template <class TValue>
 Node<TValue>::Node(const Node<TValue> &node)
@@ -111,8 +110,8 @@ Node<TValue>::Node(const Node<TValue> &node)
 }
 
 template <class TValue>
-Node<TValue>::Node(const int &k, const Node<TValue> &child, TValue *val)
-    : kind(k)
+Node<TValue>::Node(const STATE s, const Node<TValue> &child, TValue *val)
+    : state(s)
 {
     if (val != nullptr) {
         value = *val;
@@ -122,8 +121,8 @@ Node<TValue>::Node(const int &k, const Node<TValue> &child, TValue *val)
 }
 
 template <class TValue>
-Node<TValue>::Node(const int &k, vector<Node<TValue>> &children,
-                   TValue *val) : kind(k)
+Node<TValue>::Node(const STATE s, vector<Node<TValue>> &children,
+                   TValue *val) : state(s)
  {
     if (val != nullptr) {
         value = *val;

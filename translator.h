@@ -3,7 +3,15 @@
 #include "translator.h"
 #include "parser.h"
 
-void start_translation();
+void program_start();
+
+template <typename T>
+void start_translation(Node<T> &node);
+
+template <typename T>
+void function_signature(Node<T> function_declaration_node);
+
+void function_body(int token_types[], vector<void*> args, void* returnVal);
 
 template <typename T>
 T translate_function();

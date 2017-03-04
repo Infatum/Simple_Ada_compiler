@@ -1,19 +1,79 @@
 #include "translator.h"
-#include "parser.h"
-
-void start_translation();
 
 template <typename T>
-T translate_function();
+void start_translation(Node<T> &node)
+{
+    Parser p;
+    switch (node.get_state()) {
+    case VAR:
 
-template <typename T>
-bool translate_relational_operation(T lval, T rval);
+        break;
+    case SET:
 
-template <typename T>
-void translate_loop(int start, int end, T &obj);
+        break;
+    case ENDSTAT:
 
-template <typename T>
-T assign_operation(T &lval, const T &rval);
+        break;
+    case CONST:
 
-template <typename T>
-T translate_statement(int operator_type, T &lval, vector<T> rvals);
+        break;
+    case ADD:
+
+        break;
+    case SUBTR:
+
+        break;
+    case LESS:
+
+        break;
+    case MULT:
+
+        break;
+    case IF:
+
+        break;
+    case ELIF:
+
+        break;
+    case DIV:
+
+        break;
+    case ELSE:
+
+        break;
+    case MORE:
+
+        break;
+    case WHILE:
+
+        break;
+    case PROCD:
+
+        break;
+    case SCOPE:
+
+        break;
+    case ENDSCOPE:
+
+        break;
+    case EMPTY:
+
+        break;
+    case SEQ:
+
+        break;
+    case EXPR:
+
+        break;
+    case PROG:
+
+        break;
+    default:
+        break;
+    }
+}
+
+void program_start()
+{
+
+}

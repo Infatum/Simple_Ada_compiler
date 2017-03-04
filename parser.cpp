@@ -16,26 +16,51 @@ void Parser::error(const string &s)
 }
 
 /******************************************************************************************
-*** FUNCTION: readfile                                                                  ***
+*** FUNCTION: terminal                                                                  ***
 *******************************************************************************************
-*** DESCRIPTION: parses terminals                                                       ***
-*** INPUT ARGS : T where T - real or integer                                            ***
+*** DESCRIPTION: parses terminals basing on token type, forms the lexical tree          ***
+*** INPUT ARGS :                                                                        ***
+*** TYPE PARAMS: T where T - string, integer, real                                      ***
 *** OUTPUT ARGS:                                                                        ***
 *** IN/OUT ARGS:                                                                        ***
-*** RETURN     : Node                                                                   ***
+*** RETURN     : Node<T>                                                                ***
 ******************************************************************************************/
 template <typename T>
 Node<T> Parser::terminal()
 {
-    if (token->token_type == TOKEN_TKID || token->token_type == TOKEN_REAL
-            || token->token_type == TOKEN_LTRL) {
+    size_t size;
+    if (token->token_type == TOKEN_TKID) {
         Node<string> n(VAR, token->token_value);
+        GetNextToken();
+        return  n;
+    } if (token->token_type == TOKEN_DGIT) {
+        Node<int> n(CONST, stoi(token->token_value));
+        GetNextToken();
+        return n;
+    } if (token->token_type == TOKEN_REAL) {
+        Node<float> n(CONST, stof(token->token_value, &size));
+        GetNextToken();
+        return n;
+    } if (token->token_type == TOKEN_LTRL) {
+        Node<string> n(CONST, token->token_value);
         GetNextToken();
         return n;
     }  else {
         return parent_expr<T>();
     }
 }
+
+/******************************************************************************************
+*** FUNCTION: summa                                                                     ***
+*******************************************************************************************
+*** DESCRIPTION: parses math operations basing on token type, forms the lexical         ***
+    tree(Node with child expressions)
+*** INPUT ARGS :                                                                        ***
+*** TYPE PARAMS: T where T - type of the Node                                           ***
+*** OUTPUT ARGS:                                                                        ***
+*** IN/OUT ARGS:                                                                        ***
+*** RETURN     : Node<T>                                                                ***
+******************************************************************************************/
 template <typename T>
 Node<T> Parser::summa()
 {
@@ -59,6 +84,18 @@ Node<T> Parser::summa()
        }
       return n;
 }
+
+/******************************************************************************************
+*** FUNCTION: relational_operations                                                                     ***
+*******************************************************************************************
+*** DESCRIPTION: parses terminals basing on token type, forms the lexical               ***
+    tree(variables and constants)
+*** INPUT ARGS :                                                                        ***
+*** TYPE PARAMS: T where T - type of the Node                                           ***
+*** OUTPUT ARGS:                                                                        ***
+*** IN/OUT ARGS:                                                                        ***
+*** RETURN     : Node<T>                                                                ***
+******************************************************************************************/
 template <typename T>
 Node<T> Parser::relational_operation()
 {
@@ -68,12 +105,12 @@ Node<T> Parser::relational_operation()
         GetNextToken();
         tmp_nodes.push_back(n);
         tmp_nodes.push_back(summa<T>());
-        n = Node<T>(LT, tmp_nodes);
+        n = Node<T>(LESS, tmp_nodes);
     } else if (token->token_value == ">") {
         GetNextToken();
         tmp_nodes.push_back(n);
         tmp_nodes.push_back(summa<T>());
-        n = Node<T>(MT, summa<T>());
+        n = Node<T>(MORE, summa<T>());
     }
     return n;
 }
@@ -85,7 +122,7 @@ Node<T> Parser::expretion()
     if (token->token_type != TOKEN_TKID)
         return relational_operation<T>();
     Node<T> n(relational_operation<T>());
-    if (n.kind == TOKEN_TKID && token->token_type == TOKEN_ASOP) {
+    if (n.state == TOKEN_TKID && token->token_type == TOKEN_ASOP) {
         GetNextToken();
         sibling_nodes.push_back(n);
         sibling_nodes.push_back(expretion<T>());
@@ -125,6 +162,7 @@ Node<T> Parser::keyword()
     GetNextToken();
     return n;
 }
+
 template <typename T>
 Node<T> Parser::statement()
 {
