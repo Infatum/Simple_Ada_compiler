@@ -9,12 +9,12 @@
 class Parser
 {
 private:
-    TOKEN *token;
+    Lexer *lexer;
 protected:
     void error(const string &);
 public:
     Parser();
-    Parser(TOKEN *t);
+    Parser(Lexer &l) : lexer(l) { }
     template <typename T>
     Node<T> terminal();
     template <typename T>

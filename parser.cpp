@@ -3,13 +3,6 @@
 
 Parser::Parser() { }
 
-Parser::Parser(TOKEN *t)
-{
-    if (t != nullptr) {
-        this->token = t;
-    }
-}
-
 void Parser::error(const string &s)
 {
     cerr << "Parse error: " << s << '\n';

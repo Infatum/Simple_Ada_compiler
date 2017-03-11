@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdlib.h>
+#include "LexicalAnalyzer.h"
 #include "parser.h"
-//#include "LexicalAnalyzer.h"
 
 using namespace std;
 
@@ -35,9 +35,10 @@ int main(int argc, char*argv[])
     }
     string filename = argv[1];
 
+
     // get file contents
-    Lexeme = readfile(filename);
-    if (Lexeme.empty())
+    Lexer l(readfile(filename));
+    if (l.getLexeme().empty())
         return 0;
     else cerr << Lexeme << endl;
     // parse out the tokens
@@ -45,9 +46,8 @@ int main(int argc, char*argv[])
     cerr << "***************  Parsing Token  *********************" << endl << endl;
     //TODO: rewrite to Parser object and assign token to parser object
     TOKEN* token = NULL;
-    Parser p;
 
-    while (token = GetNextToken()) {
+    while (token = l.GetNextToken()) {
         // print out the token
         switch (token->token_type) {
         case TOKEN_UKWN:

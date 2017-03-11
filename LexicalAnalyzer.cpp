@@ -1,23 +1,11 @@
-
 #include "LexicalAnalyzer.h"
 
-const char *keyword[] = { "BEGIN", "MODULE", "CONSTANT", "PROCEDURE", "IS", "IF", "THEN",
-                          "ELSE", "ELSIF", "WHILE", "LOOP", "FLOAT", "INTEGER", "CHAR", "GET",
-                          "PUT", "END"
-                        };
-const char *rla_ops[] = { "/=", "<=", ">=", "=", "<",  ">"};
-const char *add_ops[] = { "+", "-", "OR"};
-const char *mul_ops[] = { "*", "/" , "REM", "MOD", "AND" };
-const char *asn_ops[] = {":=", ":"};
-const char delimiters[] = " ;\n\t=:<>+-*/()";
-string allow_syms = "(),:;.\"";
+string Lexer::getLexeme() const
+{
+    return Lexeme;
+}
 
-string	        Lexeme = "";
-int		        Value = 0;
-float	        ValueR = 0;
-string	        Literal = "";
-
-void trim(char **str)
+void Lexer::trim(char **str)
 {
     char *end;
     while(isspace(**str)) (*str)++;
@@ -35,7 +23,7 @@ void trim(char **str)
 *** IN/OUT ARGS:                                                                        ***
 *** RETURN     :                                                                        ***
 ******************************************************************************************/
-TOKEN* GetOperator()
+TOKEN* Lexer::GetOperator()
 {
     if (Lexeme.empty())
         return NULL;
@@ -103,7 +91,7 @@ TOKEN* GetOperator()
 *** RETURN     : bool                                                                   ***
 ******************************************************************************************/
 
-bool IsDigital(string token)
+bool Lexer::IsDigital(string token)
 {
     for (size_t i = 0; i < token.length(); i++) {
         char ch = token.at(i);
@@ -121,7 +109,7 @@ bool IsDigital(string token)
 *** RETURN     : int                                                                    ***
 ******************************************************************************************/
 
-int GetTokenType(string token)
+int Lexer::GetTokenType(string token)
 {
     // check reserved keywords
     for (size_t i = 0; i < sizeof(keyword) / sizeof(keyword[0]); i++) {
@@ -174,7 +162,7 @@ int GetTokenType(string token)
 *** RETURN     :                                                                        ***
 ******************************************************************************************/
 
-TOKEN* GetNextToken()
+TOKEN* Lexer::GetNextToken()
 {
     string token = "";
     TOKEN* token_desc = NULL;

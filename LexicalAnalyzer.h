@@ -1,3 +1,5 @@
+#ifndef LEXER_H
+#define LEXER_H
 #include <iostream>
 #include <cstring>
 #include <vector>
@@ -32,10 +34,41 @@ typedef struct _token {
     // unknown, reserved, digit, float, literal ...
 } TOKEN;
 
-extern TOKEN*          GetNextToken();
-extern string	       Lexeme;
-extern int             Value;
-extern float	       ValueR;
-extern string	       Literal;
+class Lexer
+{
+private:
+        TOKEN*          GetNextToken();
+        string	       Lexeme;
+        int             Value;
+        float	       ValueR;
+        string	       Literal;
+        const char *keyword[] = { "BEGIN", "MODULE", "CONSTANT", "PROCEDURE", "IS", "IF", "THEN",
+                                  "ELSE", "ELSIF", "WHILE", "LOOP", "FLOAT", "INTEGER", "CHAR", "GET",
+                                  "PUT", "END"
+                                };
+        const char *rla_ops[] = { "/=", "<=", ">=", "=", "<",  ">"};
+        const char *add_ops[] = { "+", "-", "OR"};
+        const char *mul_ops[] = { "*", "/" , "REM", "MOD", "AND" };
+        const char *asn_ops[] = {":=", ":"};
+        const char delimiters[] = " ;\n\t=:<>+-*/()";
+        string allow_syms = "(),:;.\"";
 
-bool IsDigital(string token);
+        string          Lexeme = "";
+        int		        Value = 0;
+        float	        ValueR = 0;
+        string	        Literal = "";
+protected:
+          bool IsDigital(string token);
+          void trim(char **str);
+          int GetTokenType(string token);
+          TOKEN* GetOperator();
+public:
+
+       Lexer(string &filename) : Lexeme(filename) {}
+       TOKEN* GetNextToken();
+       string getLexeme() const;
+};
+#endif
+
+
+
