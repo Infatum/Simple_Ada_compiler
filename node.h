@@ -1,77 +1,53 @@
 #ifndef NODE_H
 #define NODE_H
-#include <vector>
-#include <array>
-#include <string>
-#include <cassert>
-#include "parser.h"
-using std::string;
-using std::vector;
+#include <cstddef>
+#include "basenode.h"
 
-enum STATE { VAR = 1, SET, ENDSTAT, CONST, ADD, SUBTR, LESS, MULT, IF, ELIF, DIV,
-       ELSE, MORE, WHILE, PROCD, SCOPE, ENDSCOPE, EMPTY, SEQ, EXPR, PROG };
+template <class... Args>
+struct node;
 
-template <class TValue>
-class Node
+template <typename Root, typename... Leaf>
+struct node<Root, Leaf...> : node<Leaf...>
 {
-private:
-    STATE state;
-    TValue *value;
-    Node *parent;
-    vector<Node<TValue>> child_node_operators;
+    //Recursively instantiating and initializing each node of the tree(starting with a root node and moving on)
+    node(Root h, Leaf... tail) : node<Leaf...>(tail...), Root(h)
+    {}
 
-protected:
-    set_state(const STATE st)
-    {
-        state = st;
-    }
+    typedef node<Leaf...>  current_node;
+    typedef Root           root_node;
 
-public:
-    //Node() : state(EMPTY), value(nullptr), parent(nullptr) { }
-    Node(STATE s, TValue &val = nullptr, vector<Node<TValue>> &children = { }):
-        state(s), value(val), child_node_operators(children) { }
-
-    Node(const Node<TValue> &n)
-    {
-        delete parent, value;
-        child_node_operators.clear();
-        state = n.state;
-
-    }
-
-    int get_state() const
-    {
-        return state;
-    }
-
-    TValue get_value() const
-    {
-        return value;
-    }
-
-    std::vector<int> get_children_nodes() const
-    {
-        return child_node_operators;
-    }
-
-    Node<TValue> operator=(const Node &n)
-    {
-        if (&n != this) {
-            delete value, parent;
-            child_node_operators.clear();
-            *value = n.value;
-            *parent = Node(n.parent);
-            child_node_operators = n.child_node_operators;
-            return *this;
-        } else
-            return *this;
-    }
-
-    virtual ~Node()
-    {
-        delete value, parent;
-        child_node_operators.clear();
-    }
+    current_node &node_ = static_cast<root_node&>(*this);
+    Root    root;
 };
 
+template<>
+struct node<>
+{};
+
+template<int I, typename Root, typename... Args>
+    struct getter
+    {
+        typedef typename getter<I-1, Args...>::return_type return_type;
+        static return_type get(node<Root, Args...> t)
+        {
+            return getter<I-1, Args...>::get(t);
+        }
+    };
+
+template<typename Root, typename... Args>
+       struct getter<0, Root, Args...>
+       {
+           typedef typename node<Root, Args...>::value_type return_type;
+           static return_type get(node<Root, Args...> t)
+           {
+               return t.head_;
+           }
+       };
+
+template<int I, typename Root, typename... Args>
+    typename getter<I, Root, Args...>::return_type
+    get(tuple<Root, Args...> t)
+    {
+       return getter<I, Root, Args...>::get(t);
+    }
 #endif // NODE_H

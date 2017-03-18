@@ -1,7 +1,7 @@
 #include "translator.h"
 
 template <typename T>
-void start_translation(Node<T> &node)
+void start_translation(BaseNode<T> &node)
 {
     Parser p;
     switch (node.get_state()) {

@@ -1,11 +1,22 @@
 #include "LexicalAnalyzer.h"
 
-string Lexer::getLexeme() const
-{
-    return Lexeme;
-}
+const char *keyword[] = { "BEGIN", "MODULE", "CONSTANT", "PROCEDURE", "IS", "IF", "THEN",
+                          "ELSE", "ELSIF", "WHILE", "LOOP", "FLOAT", "INTEGER", "CHAR", "GET",
+                          "PUT", "END"
+                        };
+const char *rla_ops[] = { "/=", "<=", ">=", "=", "<",  ">"};
+const char *add_ops[] = { "+", "-", "OR"};
+const char *mul_ops[] = { "*", "/" , "REM", "MOD", "AND" };
+const char *asn_ops[] = {":=", ":"};
+const char delimiters[] = " ;\n\t=:<>+-*/()";
+string allow_syms = "(),:;.\"";
 
-void Lexer::trim(char **str)
+string	        Lexeme = "";
+int		        Value = 0;
+float	        ValueR = 0;
+string	        Literal = "";
+
+void trim(char **str)
 {
     char *end;
     while(isspace(**str)) (*str)++;
@@ -23,7 +34,7 @@ void Lexer::trim(char **str)
 *** IN/OUT ARGS:                                                                        ***
 *** RETURN     :                                                                        ***
 ******************************************************************************************/
-TOKEN* Lexer::GetOperator()
+Token* GetOperator()
 {
     if (Lexeme.empty())
         return NULL;
@@ -75,7 +86,7 @@ TOKEN* Lexer::GetOperator()
     }
     // check token type
     if (token_type == TOKEN_UKWN) return NULL;
-    TOKEN* token = new TOKEN;
+    Token* token = new Token;
     token->token_value = token_name;
     token->token_type = token_type;
     Lexeme = Lexeme.substr(token_name.length());
@@ -91,7 +102,7 @@ TOKEN* Lexer::GetOperator()
 *** RETURN     : bool                                                                   ***
 ******************************************************************************************/
 
-bool Lexer::IsDigital(string token)
+bool IsDigital(string token)
 {
     for (size_t i = 0; i < token.length(); i++) {
         char ch = token.at(i);
@@ -109,7 +120,7 @@ bool Lexer::IsDigital(string token)
 *** RETURN     : int                                                                    ***
 ******************************************************************************************/
 
-int Lexer::GetTokenType(string token)
+int GetTokenType(string token)
 {
     // check reserved keywords
     for (size_t i = 0; i < sizeof(keyword) / sizeof(keyword[0]); i++) {
@@ -162,10 +173,10 @@ int Lexer::GetTokenType(string token)
 *** RETURN     :                                                                        ***
 ******************************************************************************************/
 
-TOKEN* Lexer::GetNextToken()
+Token* GetNextToken()
 {
     string token = "";
-    TOKEN* token_desc = NULL;
+    Token* token_desc = NULL;
     while (token.empty() && !Lexeme.empty()) {
         // ignore comments
         while (Lexeme.at(0) == '-' && Lexeme.at(1) == '-') {
@@ -221,7 +232,7 @@ TOKEN* Lexer::GetNextToken()
     if (token.empty())
         return token_desc;   // return NULL
     else {
-        token_desc = new TOKEN;
+        token_desc = new Token;
         token_desc->token_value = token;
         token_desc->token_type = GetTokenType(token_desc->token_value);
         switch (token_desc->token_type) {

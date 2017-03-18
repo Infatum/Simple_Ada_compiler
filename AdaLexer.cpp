@@ -14,6 +14,7 @@ using namespace std;
 *** IN/OUT ARGS:                                                                        ***
 *** RETURN     : string                                                                 ***
 ******************************************************************************************/
+
 string readfile(string filepath)
 {
     ifstream file(filepath.c_str());
@@ -35,19 +36,20 @@ int main(int argc, char*argv[])
     }
     string filename = argv[1];
 
-
     // get file contents
-    Lexer l(readfile(filename));
-    if (l.getLexeme().empty())
+    Lexeme = readfile(filename);
+    if (Lexeme.empty())
         return 0;
     else cerr << Lexeme << endl;
     // parse out the tokens
     cerr << endl;
     cerr << "***************  Parsing Token  *********************" << endl << endl;
     //TODO: rewrite to Parser object and assign token to parser object
-    TOKEN* token = NULL;
+    Token* token = NULL;
+    Parser p;
 
-    while (token = l.GetNextToken()) {
+
+    while (token = GetNextToken()) {
         // print out the token
         switch (token->token_type) {
         case TOKEN_UKWN:
@@ -56,25 +58,22 @@ int main(int argc, char*argv[])
 
         case TOKEN_RSVD:
             cerr << "Reserved keyword\t";
-            //p.keyword();
-
-            //if (find(keyword_list.begin(), keyword_list.end(), token->token_name)
-            //== keyword_list.end()) keyword_list.push_back(token->token_name);
+            p.keyword<string>();
+            //auto n = p.keyword<string>();
+            //if (find(keyword_list.begin(), keyword_list.end(), token->token_value)
+            //== keyword_list.end()) keyword_list.push_back(token->token_value);
             break;
 
         case TOKEN_DGIT:
             cerr << "Integer number\t\t";
-            if (IsDigital(token->token_value)) {
-
-            }
-            //if (find(digital_list.begin(), digital_list.end(), token->token_name)
-            //== digital_list.end()) digital_list.push_back(token->token_name);
+            //if (find(digital_list.begin(), digital_list.end(), token->token_value)
+            //== digital_list.end()) digital_list.push_back(token->token_value);
             break;
 
         case TOKEN_REAL:
             cerr << "Float Number\t\t";
-            //if (find(fractional_list.begin(), fractional_list.end(), token->token_name)
-            // == fractional_list.end()) fractional_list.push_back(token->token_name);
+            //if (find(fractional_list.begin(), fractional_list.end(), token->token_value)
+            // == fractional_list.end()) fractional_list.push_back(token->token_value);
             break;
 
         case TOKEN_TKID:
@@ -82,26 +81,26 @@ int main(int argc, char*argv[])
             if (token->token_value.length() > MAX_ID_LEN)
                 cerr << "(Token ID length should be shorter than " << MAX_ID_LEN << ")";
             //cerr << endl;
-            //if (find(tokenid_list.begin(), tokenid_list.end(), token->token_name)
-            //== tokenid_list.end()) tokenid_list.push_back(token->token_name);
+            //if (find(tokenid_list.begin(), tokenid_list.end(), token->token_value)
+            //== tokenid_list.end()) tokenid_list.push_back(token->token_value);
             break;
 
         case TOKEN_LTRL:
             cerr << "Literal string\t\t";
-            //if (find(literal_list.begin(), literal_list.end(), token->token_name)
-            //== literal_list.end()) literal_list.push_back(token->token_name);
+            //if (find(literal_list.begin(), literal_list.end(), token->token_value)
+            //== literal_list.end()) literal_list.push_back(token->token_value);
             break;
 
         case TOKEN_RLOP:
             cerr << "Rel'operator\t\t";
-            //if (find(relopr_list.begin(), relopr_list.end(), token->token_name)
-            //== relopr_list.end()) relopr_list.push_back(token->token_name);
+            //if (find(relopr_list.begin(), relopr_list.end(), token->token_value)
+            //== relopr_list.end()) relopr_list.push_back(token->token_value);
             break;
 
         case TOKEN_ADOP:
             cerr << "Add'operator\t\t";
-            //if (find(addopr_list.begin(), addopr_list.end(), token->token_name)
-            //== addopr_list.end()) addopr_list.push_back(token->token_name);
+            //if (find(addopr_list.begin(), addopr_list.end(), token->token_value)
+            //== addopr_list.end()) addopr_list.push_back(token->token_value);
             break;
 
         case TOKEN_MLOP:
@@ -129,4 +128,3 @@ int main(int argc, char*argv[])
 
     return 0;
 }
-

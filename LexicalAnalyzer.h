@@ -32,43 +32,11 @@ typedef struct _token {
     string	token_value;
     int		token_type;
     // unknown, reserved, digit, float, literal ...
-} TOKEN;
+} Token;
 
-class Lexer
-{
-private:
-        TOKEN*          GetNextToken();
-        string	       Lexeme;
-        int             Value;
-        float	       ValueR;
-        string	       Literal;
-        const char *keyword[] = { "BEGIN", "MODULE", "CONSTANT", "PROCEDURE", "IS", "IF", "THEN",
-                                  "ELSE", "ELSIF", "WHILE", "LOOP", "FLOAT", "INTEGER", "CHAR", "GET",
-                                  "PUT", "END"
-                                };
-        const char *rla_ops[] = { "/=", "<=", ">=", "=", "<",  ">"};
-        const char *add_ops[] = { "+", "-", "OR"};
-        const char *mul_ops[] = { "*", "/" , "REM", "MOD", "AND" };
-        const char *asn_ops[] = {":=", ":"};
-        const char delimiters[] = " ;\n\t=:<>+-*/()";
-        string allow_syms = "(),:;.\"";
-
-        string          Lexeme = "";
-        int		        Value = 0;
-        float	        ValueR = 0;
-        string	        Literal = "";
-protected:
-          bool IsDigital(string token);
-          void trim(char **str);
-          int GetTokenType(string token);
-          TOKEN* GetOperator();
-public:
-
-       Lexer(string &filename) : Lexeme(filename) {}
-       TOKEN* GetNextToken();
-       string getLexeme() const;
-};
+extern Token*          GetNextToken();
+extern string	       Lexeme;
+extern int             Value;
+extern float	       ValueR;
+extern string	       Literal;
 #endif
-
-
-

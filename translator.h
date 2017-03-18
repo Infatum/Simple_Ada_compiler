@@ -6,10 +6,10 @@
 void program_start();
 
 template <typename T>
-void start_translation(Node<T> &node);
+void start_translation(BaseNode<T> &node);
 
 template <typename T>
-void function_signature(Node<T> function_declaration_node);
+void function_signature(BaseNode<T> function_declaration_node);
 
 void function_body(int token_types[], vector<void*> args, void* returnVal);
 
