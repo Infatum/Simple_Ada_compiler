@@ -5,6 +5,7 @@
 #include <iostream>
 #include <locale>
 #include "node.h"
+#include <tuple>
 
 class Parser
 {
@@ -14,7 +15,6 @@ protected:
     void parse_error(const string &);
 public:
     Parser() {}
-
 void parse_err(const string &s)
 {
     cerr << "Parse error: " << s << '\n';
@@ -30,22 +30,23 @@ void parse_err(const string &s)
 *** IN/OUT ARGS:                                                                        ***
 *** RETURN     : Node<T>                                                                ***
 ******************************************************************************************/
-template <typename T>
-BaseNode<T> terminal()
+template <typename Root, typename... T>
+typename node<Root,T...>::return_type terminal()
 {
     size_t size;
     if (token->token_type == TOKEN_TKID) {
-        BaseNode<T> n(VAR, token->token_value);
+        node<Root> n(VAR, token->token_value);
         GetNextToken();
         return  n;
     } else {
-        return parent_expr<T>();
+        return parent_expr<Root, T...>();
     }
 }
-template <typename T>
-BaseNode<T> non_terminal()
+
+template <typename Root, typename... T>
+typename node<Root,T...>::return_type non_terminal()
 {
-    BaseNode<T> n(CONST, token->token_value);
+    node<Root> n(CONST, token->token_value);
     GetNextToken();
     return n;
 }
@@ -61,17 +62,17 @@ BaseNode<T> non_terminal()
 *** IN/OUT ARGS:                                                                        ***
 *** RETURN     : Node<T>                                                                ***
 ******************************************************************************************/
-template <typename T>
-BaseNode<T> summa()
+template <typename Root, typename... T>
+typename node<Root,T...>::return_type summa()
 {
       int kind;
-      vector<BaseNode<T>> child_nodes;
+      vector<node<T...>> child_nodes;
       int tok_t = token->token_type;
       if (tok_t == TOKEN_TKID)
-          child_nodes.push_back(terminal<T>());
+          child_nodes.push_back(node<T...>(terminal<T...>));
       else if (tok_t == TOKEN_REAL || tok_t == TOKEN_DGIT || tok_t == TOKEN_LTRL)
-          child_nodes.push_back(non_terminal<T>());
-      BaseNode<T> n;
+          child_nodes.push_back(node<T...>(terminal<T...>));
+      node<Root, T...> n;
 
       while (token->token_type == TOKEN_ADOP) {
            if (token->token_value == "+")
@@ -83,8 +84,8 @@ BaseNode<T> summa()
            else if (token->token_value == "/")
                kind = DIV;
            GetNextToken();
-           child_nodes.push_back(terminal<T>());
-           n = BaseNode<T>(kind, child_nodes);
+           child_nodes.push_back(node<T...>(terminal<T...>()));
+           n = node<Root, T...>(kind, child_nodes);
        }
       return n;
 }
@@ -100,111 +101,112 @@ BaseNode<T> summa()
 *** IN/OUT ARGS:                                                                        ***
 *** RETURN     : Node<T>                                                                ***
 ******************************************************************************************/
-template <typename T>
-BaseNode<T> relational_operation()
+template <typename Root, typename... T>
+typename node<Root,T...>::return_type relational_operation()
 {
-    BaseNode<T> n = summa<T>();
-    vector<BaseNode<T>> tmp_nodes;
+    node<Root, T...> n = summa<Root, T...>();
+    vector<node<Root, T...>> tmp_nodes;
     if (token->token_value == "<") {
         GetNextToken();
         tmp_nodes.push_back(n);
-        tmp_nodes.push_back(summa<T>());
-        n = BaseNode<T>(LESS, tmp_nodes);
+        tmp_nodes.push_back(summa<T...>());
+        n = node<T...>(LESS, tmp_nodes);
     } else if (token->token_value == ">") {
         GetNextToken();
         tmp_nodes.push_back(n);
-        tmp_nodes.push_back(summa<T>());
-        n = BaseNode<T>(MORE, summa<T>());
+        tmp_nodes.push_back(summa<T...>());
+        n = node<T...>(MORE, summa<T...>());
     }
     return n;
 }
-template<typename T>
-BaseNode<T> expretion()
+template <typename Root, typename... T>
+typename node<Root,T...>::return_type expretion()
 {
-    std::vector<BaseNode<T>> sibling_nodes;
+    std::vector<node<T...>> sibling_nodes;
 
     if (token->token_type != TOKEN_TKID)
-        return relational_operation<T>();
-    BaseNode<T> n(relational_operation<T>());
+        return relational_operation<Root, T...>();
+    node<Root, T...> n(relational_operation<Root,T...>());
     if (n.state == TOKEN_TKID && token->token_type == TOKEN_ASOP) {
         GetNextToken();
         sibling_nodes.push_back(n);
-        sibling_nodes.push_back(expretion<T>());
-        n = BaseNode<T>(SET, sibling_nodes);
+        sibling_nodes.push_back(expretion<T...>());
+        n = node<Root,T...>(SET, sibling_nodes);
     }
     return n;
 }
 
-template <typename T>
-BaseNode<T> parent_expr()
+template <typename Root, typename... T>
+typename node<Root,T...>::return_type parent_expr()
 {
     if (token->token_value != "(")
         parse_error("'(' expected");
     GetNextToken();
-    BaseNode<T> n(expretion<T>());
+    node<Root, T...> n(expretion<Root, T...>());
     if (token->token_value != ")")
         parse_error("')' expected");
     GetNextToken();
     return n;
 }
 
-template <typename T>
-BaseNode<T> keyword()
+template <typename Root, typename... T>
+typename node<Root,T...>::return_type keyword()
 {
-    BaseNode<T> n;
+    node<Root, T...> n;
     std::locale loc;
     string keyword = std::toupper(token->token_value, loc);
     if (token->token_type == TOKEN_RSVD) {
         if (keyword == "PROCEDURE")
-            n = BaseNode<T>(PROCD);
+            n = node<Root>(PROCD);
          if (keyword == "LOOP")
-            n = BaseNode<T>(WHILE);
+            n = node<Root>(WHILE);
          if (keyword == "IS")
-            n = BaseNode<T>(SCOPE);
+            n = node<Root>(SCOPE);
          if (keyword == "END")
-             n = BaseNode<T>(ENDSCOPE);
+             n = node<Root>(ENDSCOPE);
     }
     GetNextToken();
     return n;
 }
 
-template <typename T>
-BaseNode<T> statement()
+template <typename Root, typename... T>
+typename node<Root,T...>::return_type statement()
 {
-    BaseNode<T> n;
-    std::vector<BaseNode<T>> tmp_opers;
+    node<Root,T...> n;
+    std::vector<node<Root, T...>> sibling_nodes;
+    std::vector<node<Root, T...>> tmp_opers;
     std::locale loc;
     string lexem = std::toupper(token->token_value, loc);
     if (token->token_type == TOKEN_RLOP) {
-        n = relational_operation<T>();
+        n = relational_operation<Root, T...>();
         GetNextToken();
-        n.add_sibling_node(parent_expr<T>());
-        n.add_sibling_node(statement<T>());
+        sibling_nodes.push_back(node<T...>(parent_expr<T...>()));
+        sibling_nodes.push_back(node<T...>(statement<T...>()));
 
         if (lexem == "ELSEIF") {
-            n = BaseNode<T>(ELIF);
+            n = node<Root>(ELIF);
             GetNextToken();
-            n.add_sibling_node(statement<T>());
+            sibling_nodes.push_back(statement<T...>());
         }
     } else if (token->token_type == TOKEN_RSVD) {
-       n = keyword<T>();
+       n = keyword<Root>();
        GetNextToken();
-       n.add_sibling_node(terminal<T>());
+       sibling_nodes.push_back(terminal<T...>());
        GetNextToken();
-       n.add_sibling_node(parent_expr<T>());
-       n.add_sibling_node(statement<T>());
+       sibling_nodes.push_back(parent_expr<T...>());
+       sibling_nodes.push_back(statement<T...>());
     } else if (token->token_value == ";") {
-        n = BaseNode<T>(ENDSTAT);
+        n = sibling_nodes.push_back(ENDSTAT);
         GetNextToken();
     } else if (token->token_type == TOKEN_ALWD)
         if (lexem == "(") {
-            n = BaseNode<T>(EMPTY);
+            n = node<Root>(EMPTY);
             GetNextToken();
             while (token->token_value != ")")
-                n = BaseNode<T>(SEQ, n, statement<T>());
+                n = node<Root, T...>(SEQ, n, statement<T...>());
             GetNextToken();
         } else {
-            n = BaseNode<T>(EXPR, expretion<T>());
+            n = node<Root,T...>(EXPR, expretion<T...>());
             if (token->token_value != ";")
                 parse_error("';' expected");
             GetNextToken();
@@ -212,11 +214,11 @@ BaseNode<T> statement()
     return n;
 }
 
-template <typename T>
-BaseNode<T> parse()
+template <typename Root, typename... T>
+typename node<Root,T...>::return_type parse()
 {
     GetNextToken();
-    BaseNode<T> node(PROG, statement<T>());
+    node<Root, T...> node(PROG, statement<T...>());
     return node;
 }
 };

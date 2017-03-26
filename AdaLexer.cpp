@@ -58,7 +58,7 @@ int main(int argc, char*argv[])
 
         case TOKEN_RSVD:
             cerr << "Reserved keyword\t";
-            p.keyword<string>();
+            p.keyword();
             //auto n = p.keyword<string>();
             //if (find(keyword_list.begin(), keyword_list.end(), token->token_value)
             //== keyword_list.end()) keyword_list.push_back(token->token_value);

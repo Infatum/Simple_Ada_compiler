@@ -3,6 +3,9 @@
 #include <cstddef>
 #include "basenode.h"
 
+enum STATE { VAR = 1, SET, ENDSTAT, CONST, ADD, SUBTR, LESS, MULT, IF, ELIF, DIV,
+       ELSE, MORE, WHILE, PROCD, SCOPE, ENDSCOPE, EMPTY, SEQ, EXPR, PROG };
+
 template <class... Args>
 struct node;
 
