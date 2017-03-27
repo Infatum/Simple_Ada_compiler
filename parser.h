@@ -5,7 +5,9 @@
 #include <iostream>
 #include <locale>
 #include "node.h"
+#include <algorithm>
 #include <tuple>
+using namespace AST;
 
 class Parser
 {
@@ -31,7 +33,7 @@ void parse_err(const string &s)
 *** RETURN     : Node<T>                                                                ***
 ******************************************************************************************/
 template <typename Root, typename... T>
-typename node<Root,T...>::return_type terminal()
+node<Root,T...> terminal()
 {
     size_t size;
     if (token->token_type == TOKEN_TKID) {
@@ -44,7 +46,7 @@ typename node<Root,T...>::return_type terminal()
 }
 
 template <typename Root, typename... T>
-typename node<Root,T...>::return_type non_terminal()
+node<Root,T...> non_terminal()
 {
     node<Root> n(CONST, token->token_value);
     GetNextToken();
@@ -63,7 +65,7 @@ typename node<Root,T...>::return_type non_terminal()
 *** RETURN     : Node<T>                                                                ***
 ******************************************************************************************/
 template <typename Root, typename... T>
-typename node<Root,T...>::return_type summa()
+node<Root,T...> summa()
 {
       int kind;
       vector<node<T...>> child_nodes;
@@ -102,7 +104,7 @@ typename node<Root,T...>::return_type summa()
 *** RETURN     : Node<T>                                                                ***
 ******************************************************************************************/
 template <typename Root, typename... T>
-typename node<Root,T...>::return_type relational_operation()
+node<Root,T...> relational_operation()
 {
     node<Root, T...> n = summa<Root, T...>();
     vector<node<Root, T...>> tmp_nodes;
@@ -120,7 +122,7 @@ typename node<Root,T...>::return_type relational_operation()
     return n;
 }
 template <typename Root, typename... T>
-typename node<Root,T...>::return_type expretion()
+node<Root,T...> expretion()
 {
     std::vector<node<T...>> sibling_nodes;
 
@@ -131,13 +133,13 @@ typename node<Root,T...>::return_type expretion()
         GetNextToken();
         sibling_nodes.push_back(n);
         sibling_nodes.push_back(expretion<T...>());
-        n = node<Root,T...>(SET, sibling_nodes);
+        return node<Root,T...>(SET, sibling_nodes);
     }
     return n;
 }
 
 template <typename Root, typename... T>
-typename node<Root,T...>::return_type parent_expr()
+node<Root,T...> parent_expr()
 {
     if (token->token_value != "(")
         parse_error("'(' expected");
@@ -150,35 +152,41 @@ typename node<Root,T...>::return_type parent_expr()
 }
 
 template <typename Root, typename... T>
-typename node<Root,T...>::return_type keyword()
+node<Root,T...> keyword()
 {
-    node<Root, T...> n;
     std::locale loc;
     string keyword = std::toupper(token->token_value, loc);
     if (token->token_type == TOKEN_RSVD) {
-        if (keyword == "PROCEDURE")
-            n = node<Root>(PROCD);
-         if (keyword == "LOOP")
-            n = node<Root>(WHILE);
-         if (keyword == "IS")
-            n = node<Root>(SCOPE);
-         if (keyword == "END")
-             n = node<Root>(ENDSCOPE);
+        if (keyword == "PROCEDURE") {
+            GetNextToken();
+            return node<Root>(PROCD);
+         }
+         if (keyword == "LOOP") {
+            GetNextToken();
+            return node<Root>(WHILE);
+         }
+         if (keyword == "IS") {
+            GetNextToken();
+            return node<Root>(SCOPE);
+         }
+         if (keyword == "END") {
+             GetNextToken();
+             return node<Root>(ENDSCOPE);
+         }
     }
-    GetNextToken();
-    return n;
 }
 
 template <typename Root, typename... T>
-typename node<Root,T...>::return_type statement()
+node<Root,T...> statement()
 {
-    node<Root,T...> n;
+    //node<Root,T...> n;
     std::vector<node<Root, T...>> sibling_nodes;
     std::vector<node<Root, T...>> tmp_opers;
     std::locale loc;
+    node<Root, T...> n;
     string lexem = std::toupper(token->token_value, loc);
     if (token->token_type == TOKEN_RLOP) {
-        n = relational_operation<Root, T...>();
+        n = node<Root, T...>(relational_operation<Root, T...>());
         GetNextToken();
         sibling_nodes.push_back(node<T...>(parent_expr<T...>()));
         sibling_nodes.push_back(node<T...>(statement<T...>()));
@@ -189,14 +197,16 @@ typename node<Root,T...>::return_type statement()
             sibling_nodes.push_back(statement<T...>());
         }
     } else if (token->token_type == TOKEN_RSVD) {
-       n = keyword<Root>();
+       n = node<Root, T...>(keyword<Root>());
        GetNextToken();
        sibling_nodes.push_back(terminal<T...>());
        GetNextToken();
        sibling_nodes.push_back(parent_expr<T...>());
        sibling_nodes.push_back(statement<T...>());
+       return node<Root, T...>(n, for_each(sibling_nodes.begin(), sibling_nodes.end(),
+                                           [] (node<Root, T...> &n) { return n; }));
     } else if (token->token_value == ";") {
-        n = sibling_nodes.push_back(ENDSTAT);
+        sibling_nodes.push_back(ENDSTAT);
         GetNextToken();
     } else if (token->token_type == TOKEN_ALWD)
         if (lexem == "(") {
@@ -215,7 +225,7 @@ typename node<Root,T...>::return_type statement()
 }
 
 template <typename Root, typename... T>
-typename node<Root,T...>::return_type parse()
+node<Root,T...> parse()
 {
     GetNextToken();
     node<Root, T...> node(PROG, statement<T...>());

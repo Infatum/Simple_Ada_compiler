@@ -14,7 +14,6 @@ using namespace std;
 *** IN/OUT ARGS:                                                                        ***
 *** RETURN     : string                                                                 ***
 ******************************************************************************************/
-
 string readfile(string filepath)
 {
     ifstream file(filepath.c_str());
@@ -47,9 +46,9 @@ int main(int argc, char*argv[])
     //TODO: rewrite to Parser object and assign token to parser object
     Token* token = NULL;
     Parser p;
+    vector<void*> ol;
 
-
-    while (token = GetNextToken()) {
+    while ((token = GetNextToken())) {
         // print out the token
         switch (token->token_type) {
         case TOKEN_UKWN:
@@ -58,7 +57,7 @@ int main(int argc, char*argv[])
 
         case TOKEN_RSVD:
             cerr << "Reserved keyword\t";
-            //auto n = p.keyword<int,string>();
+            p.keyword<int>();
             //auto n = p.keyword<string>();
             //if (find(keyword_list.begin(), keyword_list.end(), token->token_value)
             //== keyword_list.end()) keyword_list.push_back(token->token_value);
