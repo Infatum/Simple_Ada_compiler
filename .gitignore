@@ -71,3 +71,7 @@ Thumbs.db
 *.dll
 *.exe
 
+*.idea
+/Debug
+/Release
+cmake-build-debug/
