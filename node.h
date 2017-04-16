@@ -25,6 +25,7 @@ struct node<Root, Leaf...> : node<Leaf...>
 
     current_node &node_ = static_cast<current_node&>(*this);
     Root    root;
+    STATE   state;
 
     node<Root, Leaf...>& operator=(const node<Root, Leaf...>&n)
     {
